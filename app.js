@@ -4,6 +4,7 @@ forecastBtn.addEventListener("click", async function () {
 	const location = document.getElementById("locationInput").value;
 	const waterTemp = Number(document.getElementById("waterTempInput").value);
 	const clarity = document.getElementById("clarityInput").value;
+    const lakeType = document.getElementById("lakeTypeInput").value;
 
 	if (!location || !waterTemp) {
 		alert("Please enter a location and water temperature.");
@@ -12,8 +13,8 @@ forecastBtn.addEventListener("click", async function () {
 
 	try {
 		const weather = await getWeatherData(location);
-		const recommendation = getFishingRecommendation(waterTemp, clarity, weather);
-        const techniqueRatings = getTechniqueRatings(waterTemp, clarity, weather);
+		const recommendation = getFishingRecommendation(waterTemp, clarity, weather, lakeType);
+        const techniqueRatings = getTechniqueRatings(waterTemp, clarity, weather, lakeType);
         const spawnPattern = getSpawnPattern(waterTemp);
 
         const now = new Date();
@@ -54,6 +55,8 @@ forecastBtn.addEventListener("click", async function () {
             <p><strong>Water Temp:</strong> ${waterTemp}°F</p>
 
             <p><strong>Water Clarity:</strong> ${clarity}</p>
+
+            <p><strong>Lake Type:</strong> ${formatLakeType(lakeType)}</p>
         `;
 
 		document.getElementById("recommendationOutput").innerHTML = `
@@ -114,7 +117,7 @@ async function getWeatherData(location) {
         moonPhase: "Coming soon"    };
 }
 
-function getFishingRecommendation(waterTemp, clarity, weather) {
+function getFishingRecommendation(waterTemp, clarity, weather, lakeType) {
 	let activity = "";
 	let depth = "";
 	let lures = "";
@@ -154,6 +157,20 @@ function getFishingRecommendation(waterTemp, clarity, weather) {
 		colors = "High-contrast colors: black/blue, chartreuse, bright white";
 	}
 
+    if (lakeType === "weeds") {
+        lures += ", frog, swim jig, Texas rig";
+    } else if (lakeType === "rock") {
+        lures += ", football jig, crankbait, Ned rig";
+    } else if (lakeType === "sand") {
+        lures += ", swimbait, jerkbait, drop shot";
+    } else if (lakeType === "wood") {
+        lures += ", flipping jig, spinnerbait, Texas rig";
+    } else if (lakeType === "docks") {
+        lures += ", skipping jig, wacky rig, finesse worm";
+    } else {
+        lures += ", jig, soft plastic, spinnerbait";
+    }
+
 	return {
 		activity,
 		depth,
@@ -162,7 +179,7 @@ function getFishingRecommendation(waterTemp, clarity, weather) {
 	};
 }
 
-function getTechniqueRatings(waterTemp, clarity, weather) {
+function getTechniqueRatings(waterTemp, clarity, weather, lakeType) {
 	const ratings = [
 		{
 			name: "Finesse",
@@ -271,6 +288,42 @@ function getTechniqueRatings(waterTemp, clarity, weather) {
 			}
 		}
 
+        if (lakeType === "weeds") {
+            if (item.name === "Frogs" || item.name === "Jigs" || item.name === "Topwater") {
+                item.score += 2;
+            }
+        }
+
+        if (lakeType === "rock") {
+            if (item.name === "Jigs" || item.name === "Crankbaits" || item.name === "Finesse") {
+                item.score += 2;
+            }
+        }
+
+        if (lakeType === "sand") {
+            if (item.name === "Swimbaits" || item.name === "Jerkbaits" || item.name === "Finesse") {
+                item.score += 1;
+            }
+        }
+
+        if (lakeType === "wood") {
+            if (item.name === "Jigs" || item.name === "Moving Baits") {
+                item.score += 2;
+            }
+        }
+
+        if (lakeType === "docks") {
+            if (item.name === "Jigs" || item.name === "Finesse") {
+                item.score += 2;
+            }
+        }
+
+        if (lakeType === "mixed") {
+            if (item.name === "Jigs" || item.name === "Moving Baits") {
+                item.score += 1;
+            }
+        }
+
 		if (item.score >= 8) {
 			item.rating = "Excellent";
 		} else if (item.score >= 6) {
@@ -360,4 +413,13 @@ function getSpawnPattern(waterTemp) {
 		pattern: "Fish are usually more influenced by shade, oxygen, current, grass, and low-light feeding windows.",
 		areas: "Deep grass edges, docks, shade lines, offshore structure, current areas, and early/late shallow cover"
 	};
+}
+
+function formatLakeType(lakeType) {
+	if (lakeType === "weeds") return "Weeds / Grass";
+	if (lakeType === "rock") return "Rock";
+	if (lakeType === "sand") return "Sand";
+	if (lakeType === "wood") return "Wood / Laydowns";
+	if (lakeType === "docks") return "Docks";
+	return "Mixed Cover";
 }
