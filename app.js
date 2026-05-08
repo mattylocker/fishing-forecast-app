@@ -187,53 +187,35 @@ function getFishingRecommendation(waterTemp, clarity, weather, lakeType) {
 
 function getTechniqueRatings(waterTemp, clarity, weather, lakeType) {
 	const ratings = [
-		{
-			name: "Finesse",
-			score: 5
-		},
-		{
-			name: "Jigs",
-			score: 5
-		},
-		{
-			name: "Moving Baits",
-			score: 5
-		},
-		{
-			name: "Swimbaits",
-			score: 5
-		},
-		{
-			name: "Topwater",
-			score: 5
-		},
-		{
-			name: "Frogs",
-			score: 5
-		},
-		{
-			name: "Crankbaits",
-			score: 5
-		},
-		{
-			name: "Jerkbaits",
-			score: 5
-		}
+		{ name: "Finesse", score: 5 },
+		{ name: "Jigs", score: 5 },
+		{ name: "Moving Baits", score: 5 },
+		{ name: "Swimbaits", score: 5 },
+		{ name: "Topwater", score: 5 },
+		{ name: "Frogs", score: 5 },
+		{ name: "Crankbaits", score: 5 },
+		{ name: "Jerkbaits", score: 5 }
 	];
 
+	const pressure = weather.pressure;
+	const wind = weather.windSpeed;
+	const clouds = weather.cloudCover;
+	const rain = weather.precipChance;
+
 	ratings.forEach(function (item) {
+		// Water temperature / seasonal pattern
 		if (waterTemp < 50) {
 			if (item.name === "Finesse" || item.name === "Jerkbaits" || item.name === "Jigs") {
 				item.score += 2;
 			}
 
-			if (item.name === "Topwater" || item.name === "Frogs") {
+			if (item.name === "Topwater" || item.name === "Frogs" || item.name === "Swimbaits") {
 				item.score -= 3;
 			}
 		}
 
-		if (waterTemp >= 50 && waterTemp < 60) {
-			if (item.name === "Jerkbaits" || item.name === "Jigs" || item.name === "Crankbaits") {
+		if (waterTemp >= 50 && waterTemp < 58) {
+			if (item.name === "Jerkbaits" || item.name === "Jigs" || item.name === "Crankbaits" || item.name === "Finesse") {
 				item.score += 2;
 			}
 
@@ -242,8 +224,8 @@ function getTechniqueRatings(waterTemp, clarity, weather, lakeType) {
 			}
 		}
 
-		if (waterTemp >= 60 && waterTemp < 75) {
-			if (item.name === "Moving Baits" || item.name === "Swimbaits" || item.name === "Crankbaits") {
+		if (waterTemp >= 58 && waterTemp < 65) {
+			if (item.name === "Moving Baits" || item.name === "Swimbaits" || item.name === "Crankbaits" || item.name === "Jigs") {
 				item.score += 2;
 			}
 
@@ -252,8 +234,24 @@ function getTechniqueRatings(waterTemp, clarity, weather, lakeType) {
 			}
 		}
 
-		if (waterTemp >= 75) {
-			if (item.name === "Topwater" || item.name === "Frogs" || item.name === "Finesse") {
+		if (waterTemp >= 65 && waterTemp < 72) {
+			if (item.name === "Jigs" || item.name === "Finesse") {
+				item.score += 2;
+			}
+
+			if (item.name === "Moving Baits" || item.name === "Swimbaits") {
+				item.score += 1;
+			}
+		}
+
+		if (waterTemp >= 72 && waterTemp < 78) {
+			if (item.name === "Topwater" || item.name === "Swimbaits" || item.name === "Frogs" || item.name === "Jigs") {
+				item.score += 2;
+			}
+		}
+
+		if (waterTemp >= 78) {
+			if (item.name === "Frogs" || item.name === "Topwater" || item.name === "Jigs" || item.name === "Finesse") {
 				item.score += 2;
 			}
 
@@ -262,9 +260,66 @@ function getTechniqueRatings(waterTemp, clarity, weather, lakeType) {
 			}
 		}
 
-		if (weather.windSpeed > 10) {
+		// Wind
+		if (wind < 3) {
+			if (item.name === "Finesse" || item.name === "Jigs") {
+				item.score += 1;
+			}
+
+			if (item.name === "Moving Baits" || item.name === "Spinnerbaits" || item.name === "Crankbaits") {
+				item.score -= 1;
+			}
+		}
+
+		if (wind >= 6 && wind <= 15) {
 			if (item.name === "Moving Baits" || item.name === "Swimbaits" || item.name === "Crankbaits") {
 				item.score += 2;
+			}
+		}
+
+		if (wind > 15) {
+			if (item.name === "Moving Baits" || item.name === "Jigs") {
+				item.score += 1;
+			}
+
+			if (item.name === "Finesse" || item.name === "Topwater") {
+				item.score -= 1;
+			}
+		}
+
+		// Cloud cover
+		if (clouds < 25) {
+			if (item.name === "Finesse" || item.name === "Jigs") {
+				item.score += 1;
+			}
+
+			if (item.name === "Topwater") {
+				item.score -= 1;
+			}
+		}
+
+		if (clouds >= 50) {
+			if (item.name === "Moving Baits" || item.name === "Swimbaits" || item.name === "Topwater" || item.name === "Crankbaits") {
+				item.score += 1;
+			}
+		}
+
+		if (clouds >= 75) {
+			if (item.name === "Moving Baits" || item.name === "Topwater") {
+				item.score += 1;
+			}
+		}
+
+		// Rain chance
+		if (rain >= 40 && rain < 70) {
+			if (item.name === "Moving Baits" || item.name === "Topwater" || item.name === "Crankbaits") {
+				item.score += 1;
+			}
+		}
+
+		if (rain >= 70) {
+			if (item.name === "Jigs" || item.name === "Moving Baits") {
+				item.score += 1;
 			}
 
 			if (item.name === "Finesse") {
@@ -272,64 +327,107 @@ function getTechniqueRatings(waterTemp, clarity, weather, lakeType) {
 			}
 		}
 
-		if (weather.cloudCover > 60) {
-			if (item.name === "Topwater" || item.name === "Moving Baits" || item.name === "Swimbaits") {
+		// Pressure
+		if (pressure >= 1020) {
+			if (item.name === "Finesse" || item.name === "Jigs") {
+				item.score += 2;
+			}
+
+			if (item.name === "Topwater" || item.name === "Moving Baits") {
+				item.score -= 1;
+			}
+		}
+
+		if (pressure >= 1008 && pressure < 1020) {
+			if (item.name === "Moving Baits" || item.name === "Swimbaits" || item.name === "Crankbaits") {
+				item.score += 1;
+			}
+		}
+
+		if (pressure < 1008) {
+			if (item.name === "Moving Baits" || item.name === "Topwater" || item.name === "Crankbaits") {
+				item.score += 1;
+			}
+
+			if (item.name === "Finesse") {
+				item.score -= 1;
+			}
+		}
+
+		// Water clarity
+		if (clarity === "clear") {
+			if (item.name === "Finesse" || item.name === "Swimbaits" || item.name === "Jerkbaits") {
+				item.score += 2;
+			}
+
+			if (item.name === "Moving Baits" || item.name === "Crankbaits") {
+				item.score -= 1;
+			}
+		}
+
+		if (clarity === "stained") {
+			if (item.name === "Moving Baits" || item.name === "Jigs" || item.name === "Crankbaits" || item.name === "Swimbaits") {
 				item.score += 1;
 			}
 		}
 
 		if (clarity === "muddy") {
-			if (item.name === "Moving Baits" || item.name === "Jigs" || item.name === "Crankbaits") {
-				item.score += 1;
+			if (item.name === "Jigs" || item.name === "Moving Baits" || item.name === "Crankbaits") {
+				item.score += 2;
 			}
 
-			if (item.name === "Finesse" || item.name === "Swimbaits") {
-				item.score -= 1;
-			}
-		}
-
-		if (clarity === "clear") {
-			if (item.name === "Finesse" || item.name === "Swimbaits" || item.name === "Jerkbaits") {
-				item.score += 1;
+			if (item.name === "Finesse" || item.name === "Jerkbaits" || item.name === "Swimbaits") {
+				item.score -= 2;
 			}
 		}
 
-        if (lakeType === "weeds") {
-            if (item.name === "Frogs" || item.name === "Jigs" || item.name === "Topwater") {
-                item.score += 2;
-            }
-        }
+		// Lake cover type
+		if (lakeType === "weeds") {
+			if (item.name === "Frogs" || item.name === "Jigs" || item.name === "Topwater") {
+				item.score += 2;
+			}
+		}
 
-        if (lakeType === "rock") {
-            if (item.name === "Jigs" || item.name === "Crankbaits" || item.name === "Finesse") {
-                item.score += 2;
-            }
-        }
+		if (lakeType === "rock") {
+			if (item.name === "Jigs" || item.name === "Crankbaits" || item.name === "Finesse") {
+				item.score += 2;
+			}
+		}
 
-        if (lakeType === "sand") {
-            if (item.name === "Swimbaits" || item.name === "Jerkbaits" || item.name === "Finesse") {
-                item.score += 1;
-            }
-        }
+		if (lakeType === "sand") {
+			if (item.name === "Swimbaits" || item.name === "Jerkbaits" || item.name === "Finesse") {
+				item.score += 1;
+			}
+		}
 
-        if (lakeType === "wood") {
-            if (item.name === "Jigs" || item.name === "Moving Baits") {
-                item.score += 2;
-            }
-        }
+		if (lakeType === "wood") {
+			if (item.name === "Jigs" || item.name === "Moving Baits") {
+				item.score += 2;
+			}
+		}
 
-        if (lakeType === "docks") {
-            if (item.name === "Jigs" || item.name === "Finesse") {
-                item.score += 2;
-            }
-        }
+		if (lakeType === "docks") {
+			if (item.name === "Jigs" || item.name === "Finesse") {
+				item.score += 2;
+			}
+		}
 
-        if (lakeType === "mixed") {
-            if (item.name === "Jigs" || item.name === "Moving Baits") {
-                item.score += 1;
-            }
-        }
+		if (lakeType === "mixed") {
+			if (item.name === "Jigs" || item.name === "Moving Baits" || item.name === "Finesse") {
+				item.score += 1;
+			}
+		}
 
+		// Clamp score between 1 and 10
+		if (item.score > 10) {
+			item.score = 10;
+		}
+
+		if (item.score < 1) {
+			item.score = 1;
+		}
+
+		// Convert score to rating
 		if (item.score >= 8) {
 			item.rating = "Excellent";
 		} else if (item.score >= 6) {
