@@ -1,6 +1,6 @@
 const forecastBtn = document.getElementById("forecastBtn");
 
-forecastBtn.addEventListener("click", function () {
+forecastBtn.addEventListener("click", async function () {
 	const location = document.getElementById("locationInput").value;
 	const waterTemp = Number(document.getElementById("waterTempInput").value);
 	const clarity = document.getElementById("clarityInput").value;
@@ -10,28 +10,68 @@ forecastBtn.addEventListener("click", function () {
 		return;
 	}
 
-	const recommendation = getFishingRecommendation(waterTemp, clarity);
+	try {
+		const weather = await getWeatherData(location);
+		const recommendation = getFishingRecommendation(waterTemp, clarity, weather);
 
-	document.getElementById("weatherOutput").innerHTML = `
-		<p><strong>Location:</strong> ${location}</p>
-		<p><strong>Water Temp:</strong> ${waterTemp}°F</p>
-		<p><strong>Water Clarity:</strong> ${clarity}</p>
-	`;
+		document.getElementById("weatherOutput").innerHTML = `
+			<p><strong>Location:</strong> ${weather.name}, ${weather.state || weather.country}</p>
+			<p><strong>Air Temp:</strong> ${weather.temperature}°F</p>
+			<p><strong>Wind:</strong> ${weather.windSpeed} mph</p>
+			<p><strong>Cloud Cover:</strong> ${weather.cloudCover}%</p>
+			<p><strong>Rain Chance:</strong> ${weather.precipChance}%</p>
+			<p><strong>Pressure:</strong> ${weather.pressure} hPa</p>
+			<p><strong>Water Temp:</strong> ${waterTemp}°F</p>
+			<p><strong>Water Clarity:</strong> ${clarity}</p>
+		`;
 
-	document.getElementById("recommendationOutput").innerHTML = `
-		<div class="recommendation-box">
-			<h3>Recommendation</h3>
-			<p><strong>Activity Level:</strong> ${recommendation.activity}</p>
-			<p><strong>Likely Depth:</strong> ${recommendation.depth}</p>
-			<p><strong>Best Lures:</strong> ${recommendation.lures}</p>
-			<p><strong>Best Colors:</strong> ${recommendation.colors}</p>
-		</div>
-	`;
+		document.getElementById("recommendationOutput").innerHTML = `
+			<div class="recommendation-box">
+				<h3>Recommendation</h3>
+				<p><strong>Activity Level:</strong> ${recommendation.activity}</p>
+				<p><strong>Likely Depth:</strong> ${recommendation.depth}</p>
+				<p><strong>Best Lures:</strong> ${recommendation.lures}</p>
+				<p><strong>Best Colors:</strong> ${recommendation.colors}</p>
+			</div>
+		`;
 
-	document.getElementById("resultCard").style.display = "block";
+		document.getElementById("resultCard").style.display = "block";
+	} catch (error) {
+		alert("Could not get weather data. Try a more specific location like Tampa, FL.");
+		console.error(error);
+	}
 });
 
-function getFishingRecommendation(waterTemp, clarity) {
+async function getWeatherData(location) {
+	const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(location)}&count=1&language=en&format=json`;
+
+	const geoResponse = await fetch(geoUrl);
+	const geoData = await geoResponse.json();
+
+	if (!geoData.results || geoData.results.length === 0) {
+		throw new Error("Location not found");
+	}
+
+	const place = geoData.results[0];
+
+	const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&current=temperature_2m,surface_pressure,wind_speed_10m,cloud_cover&daily=precipitation_probability_max&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`;
+
+	const weatherResponse = await fetch(weatherUrl);
+	const weatherData = await weatherResponse.json();
+
+	return {
+		name: place.name,
+		state: place.admin1,
+		country: place.country,
+		temperature: weatherData.current.temperature_2m,
+		pressure: weatherData.current.surface_pressure,
+		windSpeed: weatherData.current.wind_speed_10m,
+		cloudCover: weatherData.current.cloud_cover,
+		precipChance: weatherData.daily.precipitation_probability_max[0]
+	};
+}
+
+function getFishingRecommendation(waterTemp, clarity, weather) {
 	let activity = "";
 	let depth = "";
 	let lures = "";
@@ -53,6 +93,14 @@ function getFishingRecommendation(waterTemp, clarity) {
 		activity = "Medium";
 		depth = "Shade, deeper grass edges, docks, and early/late shallow areas";
 		lures = "Texas rig, frog, topwater, jig, deep crankbait";
+	}
+
+	if (weather.cloudCover > 65 || weather.precipChance > 50) {
+		lures += ", buzzbait, walking topwater";
+	}
+
+	if (weather.windSpeed > 10) {
+		lures += ", spinnerbait";
 	}
 
 	if (clarity === "clear") {
