@@ -89,7 +89,7 @@ forecastBtn.addEventListener("click", async function () {
 
 		document.getElementById("resultCard").style.display = "block";
 	} catch (error) {
-		alert("Could not get weather data. Try a more specific location like Tampa, FL.");
+		alert("Could not get weather data. Try a more specific location like Tampa.");
 		console.error(error);
 	}
 });
