@@ -13,6 +13,7 @@ forecastBtn.addEventListener("click", async function () {
 	try {
 		const weather = await getWeatherData(location);
 		const recommendation = getFishingRecommendation(waterTemp, clarity, weather);
+        const techniqueRatings = getTechniqueRatings(waterTemp, clarity, weather);
 
         const now = new Date();
 
@@ -56,6 +57,12 @@ forecastBtn.addEventListener("click", async function () {
 				<p><strong>Best Lures:</strong> ${recommendation.lures}</p>
 				<p><strong>Best Colors:</strong> ${recommendation.colors}</p>
 			</div>
+            <div class="technique-ratings">
+                <h3>Technique Ratings</h3>
+                ${techniqueRatings.map(item => `
+                    <p><strong>${item.name}:</strong> ${item.rating}</p>
+                `).join("")}
+            </div>
 		`;
 
 		document.getElementById("resultCard").style.display = "block";
@@ -140,4 +147,127 @@ function getFishingRecommendation(waterTemp, clarity, weather) {
 		lures,
 		colors
 	};
+}
+
+function getTechniqueRatings(waterTemp, clarity, weather) {
+	const ratings = [
+		{
+			name: "Finesse",
+			score: 5
+		},
+		{
+			name: "Jigs",
+			score: 5
+		},
+		{
+			name: "Moving Baits",
+			score: 5
+		},
+		{
+			name: "Swimbaits",
+			score: 5
+		},
+		{
+			name: "Topwater",
+			score: 5
+		},
+		{
+			name: "Frogs",
+			score: 5
+		},
+		{
+			name: "Crankbaits",
+			score: 5
+		},
+		{
+			name: "Jerkbaits",
+			score: 5
+		}
+	];
+
+	ratings.forEach(function (item) {
+		if (waterTemp < 50) {
+			if (item.name === "Finesse" || item.name === "Jerkbaits" || item.name === "Jigs") {
+				item.score += 2;
+			}
+
+			if (item.name === "Topwater" || item.name === "Frogs") {
+				item.score -= 3;
+			}
+		}
+
+		if (waterTemp >= 50 && waterTemp < 60) {
+			if (item.name === "Jerkbaits" || item.name === "Jigs" || item.name === "Crankbaits") {
+				item.score += 2;
+			}
+
+			if (item.name === "Topwater" || item.name === "Frogs") {
+				item.score -= 2;
+			}
+		}
+
+		if (waterTemp >= 60 && waterTemp < 75) {
+			if (item.name === "Moving Baits" || item.name === "Swimbaits" || item.name === "Crankbaits") {
+				item.score += 2;
+			}
+
+			if (item.name === "Topwater") {
+				item.score += 1;
+			}
+		}
+
+		if (waterTemp >= 75) {
+			if (item.name === "Topwater" || item.name === "Frogs" || item.name === "Finesse") {
+				item.score += 2;
+			}
+
+			if (item.name === "Jerkbaits") {
+				item.score -= 2;
+			}
+		}
+
+		if (weather.windSpeed > 10) {
+			if (item.name === "Moving Baits" || item.name === "Swimbaits" || item.name === "Crankbaits") {
+				item.score += 2;
+			}
+
+			if (item.name === "Finesse") {
+				item.score -= 1;
+			}
+		}
+
+		if (weather.cloudCover > 60) {
+			if (item.name === "Topwater" || item.name === "Moving Baits" || item.name === "Swimbaits") {
+				item.score += 1;
+			}
+		}
+
+		if (clarity === "muddy") {
+			if (item.name === "Moving Baits" || item.name === "Jigs" || item.name === "Crankbaits") {
+				item.score += 1;
+			}
+
+			if (item.name === "Finesse" || item.name === "Swimbaits") {
+				item.score -= 1;
+			}
+		}
+
+		if (clarity === "clear") {
+			if (item.name === "Finesse" || item.name === "Swimbaits" || item.name === "Jerkbaits") {
+				item.score += 1;
+			}
+		}
+
+		if (item.score >= 8) {
+			item.rating = "Excellent";
+		} else if (item.score >= 6) {
+			item.rating = "Good";
+		} else if (item.score >= 4) {
+			item.rating = "Fair";
+		} else {
+			item.rating = "Tough";
+		}
+	});
+
+	return ratings;
 }

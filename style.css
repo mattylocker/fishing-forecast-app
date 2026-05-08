@@ -91,3 +91,17 @@ button:hover {
 .recommendation-box h3 {
 	margin-top: 0;
 }
+
+.technique-ratings {
+	margin-top: 18px;
+	padding-top: 12px;
+	border-top: 1px solid #c8d2cb;
+}
+
+.technique-ratings h3 {
+	margin-bottom: 10px;
+}
+
+.technique-ratings p {
+	margin: 8px 0;
+}
