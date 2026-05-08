@@ -14,6 +14,7 @@ forecastBtn.addEventListener("click", async function () {
 		const weather = await getWeatherData(location);
 		const recommendation = getFishingRecommendation(waterTemp, clarity, weather);
         const techniqueRatings = getTechniqueRatings(waterTemp, clarity, weather);
+        const spawnPattern = getSpawnPattern(waterTemp);
 
         const now = new Date();
 
@@ -68,6 +69,12 @@ forecastBtn.addEventListener("click", async function () {
                 ${techniqueRatings.map(item => `
                     <p><strong>${item.name}:</strong> ${item.rating}</p>
                 `).join("")}
+            </div>
+            <div class="recommendation-box">
+                <h3>Spawn Pattern</h3>
+                <p><strong>Stage:</strong> ${spawnPattern.stage}</p>
+                <p><strong>Pattern:</strong> ${spawnPattern.pattern}</p>
+                <p><strong>Target Areas:</strong> ${spawnPattern.areas}</p>
             </div>
 		`;
 
@@ -305,4 +312,52 @@ function getMoonPhaseName(moonPhase) {
 	} else {
 		return "Waning Crescent";
 	}
+}
+
+function getSpawnPattern(waterTemp) {
+	if (waterTemp < 50) {
+		return {
+			stage: "Cold Water / Early Pre-Spawn",
+			pattern: "Fish are usually slower and may still be holding near deeper wintering areas.",
+			areas: "Main lake points, deeper grass edges, steep banks, and slow transition areas"
+		};
+	}
+
+	if (waterTemp >= 50 && waterTemp < 58) {
+		return {
+			stage: "Early Pre-Spawn",
+			pattern: "Fish may start moving toward spawning areas, but they usually stop on staging spots first.",
+			areas: "Secondary points, creek channels, outside grass lines, and deeper docks near spawning flats"
+		};
+	}
+
+	if (waterTemp >= 58 && waterTemp < 65) {
+		return {
+			stage: "Late Pre-Spawn",
+			pattern: "Fish are likely feeding more and moving shallow. Bigger females may stage just outside spawning areas.",
+			areas: "Shallow flats near deeper water, grass edges, docks, laydowns, and protected pockets"
+		};
+	}
+
+	if (waterTemp >= 65 && waterTemp < 72) {
+		return {
+			stage: "Spawn",
+			pattern: "Fish may be on beds or close to bedding areas. The bite can be more visual and target-based.",
+			areas: "Protected shallow pockets, sandy or hard-bottom areas, docks, reeds, and calm banks"
+		};
+	}
+
+	if (waterTemp >= 72 && waterTemp < 78) {
+		return {
+			stage: "Post-Spawn",
+			pattern: "Fish may be recovering after spawning. Some stay shallow while others move toward summer areas.",
+			areas: "Bluegill beds, shade, docks, grass, points, and the first drop outside spawning pockets"
+		};
+	}
+
+	return {
+		stage: "Summer Pattern",
+		pattern: "Fish are usually more influenced by shade, oxygen, current, grass, and low-light feeding windows.",
+		areas: "Deep grass edges, docks, shade lines, offshore structure, current areas, and early/late shallow cover"
+	};
 }
