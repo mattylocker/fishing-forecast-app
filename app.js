@@ -14,16 +14,39 @@ forecastBtn.addEventListener("click", async function () {
 		const weather = await getWeatherData(location);
 		const recommendation = getFishingRecommendation(waterTemp, clarity, weather);
 
-		document.getElementById("weatherOutput").innerHTML = `
-			<p><strong>Location:</strong> ${weather.name}, ${weather.state || weather.country}</p>
-			<p><strong>Air Temp:</strong> ${weather.temperature}°F</p>
-			<p><strong>Wind:</strong> ${weather.windSpeed} mph</p>
-			<p><strong>Cloud Cover:</strong> ${weather.cloudCover}%</p>
-			<p><strong>Rain Chance:</strong> ${weather.precipChance}%</p>
-			<p><strong>Pressure:</strong> ${weather.pressure} hPa</p>
-			<p><strong>Water Temp:</strong> ${waterTemp}°F</p>
-			<p><strong>Water Clarity:</strong> ${clarity}</p>
-		`;
+        const now = new Date();
+
+        const formattedDate = now.toLocaleDateString(undefined, {
+            weekday: "long",
+            month: "long",
+            day: "numeric",
+            year: "numeric"
+        });
+
+        const formattedTime = now.toLocaleTimeString(undefined, {
+            hour: "numeric",
+            minute: "2-digit"
+        });
+
+        document.getElementById("weatherOutput").innerHTML = `
+            <p><strong>Last Updated:</strong> ${formattedDate} at ${formattedTime}</p>
+
+            <p><strong>Location:</strong> ${weather.name}, ${weather.state || weather.country}</p>
+
+            <p><strong>Air Temp:</strong> ${weather.temperature}°F</p>
+
+            <p><strong>Wind:</strong> ${weather.windSpeed} mph</p>
+
+            <p><strong>Cloud Cover:</strong> ${weather.cloudCover}%</p>
+
+            <p><strong>Rain Chance:</strong> ${weather.precipChance}%</p>
+
+            <p><strong>Pressure:</strong> ${weather.pressure} hPa</p>
+
+            <p><strong>Water Temp:</strong> ${waterTemp}°F</p>
+
+            <p><strong>Water Clarity:</strong> ${clarity}</p>
+        `;
 
 		document.getElementById("recommendationOutput").innerHTML = `
 			<div class="recommendation-box">
