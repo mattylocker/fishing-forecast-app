@@ -69,8 +69,14 @@ forecastBtn.addEventListener("click", async function () {
 			</div>
             <div class="technique-ratings">
                 <h3>Technique Ratings</h3>
+
                 ${techniqueRatings.map(item => `
-                    <p><strong>${item.name}:</strong> ${item.rating}</p>
+                    <div class="technique-card ${getRatingClass(item.rating)}">
+                        <div class="technique-card-header">
+                            <span class="technique-name">${getTechniqueIcon(item.name)} ${item.name}</span>
+                            <span class="technique-rating">${item.rating}</span>
+                        </div>
+                    </div>
                 `).join("")}
             </div>
             <div class="recommendation-box">
@@ -422,4 +428,23 @@ function formatLakeType(lakeType) {
 	if (lakeType === "wood") return "Wood / Laydowns";
 	if (lakeType === "docks") return "Docks";
 	return "Mixed Cover";
+}
+
+function getRatingClass(rating) {
+	if (rating === "Excellent") return "rating-excellent";
+	if (rating === "Good") return "rating-good";
+	if (rating === "Fair") return "rating-fair";
+	return "rating-tough";
+}
+
+function getTechniqueIcon(name) {
+	if (name === "Finesse") return "🎯";
+	if (name === "Jigs") return "🪨";
+	if (name === "Moving Baits") return "💨";
+	if (name === "Swimbaits") return "🐟";
+	if (name === "Topwater") return "🌊";
+	if (name === "Frogs") return "🐸";
+	if (name === "Crankbaits") return "⚡";
+	if (name === "Jerkbaits") return "❄️";
+	return "🎣";
 }
