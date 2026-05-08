@@ -44,6 +44,12 @@ forecastBtn.addEventListener("click", async function () {
 
             <p><strong>Pressure:</strong> ${weather.pressure} hPa</p>
 
+            <p><strong>Sunrise:</strong> ${weather.sunrise}</p>
+
+            <p><strong>Sunset:</strong> ${weather.sunset}</p>
+
+            <p><strong>Moon Phase:</strong> ${weather.moonPhase}</p>
+
             <p><strong>Water Temp:</strong> ${waterTemp}°F</p>
 
             <p><strong>Water Clarity:</strong> ${clarity}</p>
@@ -84,21 +90,21 @@ async function getWeatherData(location) {
 
 	const place = geoData.results[0];
 
-	const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&current=temperature_2m,surface_pressure,wind_speed_10m,cloud_cover&daily=precipitation_probability_max&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`;
-
-	const weatherResponse = await fetch(weatherUrl);
+    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&current=temperature_2m,surface_pressure,wind_speed_10m,cloud_cover&daily=precipitation_probability_max,sunrise,sunset&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`;	const weatherResponse = await fetch(weatherUrl);
 	const weatherData = await weatherResponse.json();
 
-	return {
-		name: place.name,
-		state: place.admin1,
-		country: place.country,
-		temperature: weatherData.current.temperature_2m,
-		pressure: weatherData.current.surface_pressure,
-		windSpeed: weatherData.current.wind_speed_10m,
-		cloudCover: weatherData.current.cloud_cover,
-		precipChance: weatherData.daily.precipitation_probability_max[0]
-	};
+    return {
+        name: place.name,
+        state: place.admin1,
+        country: place.country,
+        temperature: weatherData.current.temperature_2m,
+        pressure: weatherData.current.surface_pressure,
+        windSpeed: weatherData.current.wind_speed_10m,
+        cloudCover: weatherData.current.cloud_cover,
+        precipChance: weatherData.daily.precipitation_probability_max[0],
+        sunrise: formatTime(weatherData.daily.sunrise[0]),
+        sunset: formatTime(weatherData.daily.sunset[0]),
+        moonPhase: "Coming soon"    };
 }
 
 function getFishingRecommendation(waterTemp, clarity, weather) {
@@ -270,4 +276,33 @@ function getTechniqueRatings(waterTemp, clarity, weather) {
 	});
 
 	return ratings;
+}
+
+function formatTime(dateTimeString) {
+	const date = new Date(dateTimeString);
+
+	return date.toLocaleTimeString(undefined, {
+		hour: "numeric",
+		minute: "2-digit"
+	});
+}
+
+function getMoonPhaseName(moonPhase) {
+	if (moonPhase === 0 || moonPhase === 1) {
+		return "New Moon";
+	} else if (moonPhase > 0 && moonPhase < 0.25) {
+		return "Waxing Crescent";
+	} else if (moonPhase === 0.25) {
+		return "First Quarter";
+	} else if (moonPhase > 0.25 && moonPhase < 0.5) {
+		return "Waxing Gibbous";
+	} else if (moonPhase === 0.5) {
+		return "Full Moon";
+	} else if (moonPhase > 0.5 && moonPhase < 0.75) {
+		return "Waning Gibbous";
+	} else if (moonPhase === 0.75) {
+		return "Last Quarter";
+	} else {
+		return "Waning Crescent";
+	}
 }
